@@ -32,11 +32,12 @@ Input:
 
 Output:
 - FITS binary table extension named S1D with columns:
-  - wavelength [nm] — observed-frame wavelength
-  - wavelength_zerovel [nm] — rest-frame wavelength (corrected for BERV + systemic velocity)
-  - flux
-  - eflux
-  - weight
+  - wavelength [nm] — common observed-frame wavelength grid
+  - flux — native flux at observed wavelength
+  - eflux — flux uncertainty
+  - flux_zerovel — flux shifted to stellar rest frame (BERV + systemic velocity corrected)
+  - eflux_zerovel — flux uncertainty for zero-velocity flux
+  - weight — merge weight from blaze function
 
 Algorithm outline (APERO-style):
 1. Build target 1D wavelength grid (uniform in velocity).
@@ -49,14 +50,15 @@ Algorithm outline (APERO-style):
 
 ### Velocity correction
 
-S1D-Rama automatically reads the barycentric Earth radial velocity (BERV) and target systemic velocity from the FITS header and computes a rest-frame wavelength grid:
+S1D-Rama automatically reads the barycentric Earth radial velocity (BERV) and target systemic velocity from the FITS header and computes a rest-frame flux on the common wavelength grid:
 
 - BERV is read from extension 1 header keyword `BERV` (km/s)
 - Systemic velocity is read from extension 0 header keyword `ESO TEL TARG RADVEL` (km/s)
-- The relativistic Doppler correction is applied: λ_rest = λ_obs × √[(1 - β)/(1 + β)] where β = v_total/c
-- Both `wavelength` (observed) and `wavelength_zerovel` (rest-frame) columns are written to the output
+- The relativistic Doppler correction is applied: β = v_total/c, doppler_factor = √[(1 - β)/(1 + β)]
+- The flux is interpolated to remove the Doppler shift: flux_zerovel(λ) = flux(λ / doppler_factor)
+- Both `flux` (observed) and `flux_zerovel` (rest-frame) are written on the same wavelength grid
 
-This allows direct template matching and cross-correlation in the stellar rest frame without additional velocity shifts.
+This allows multiple epochs to be merged on a common grid where `flux_zerovel` represents the spectrum in the stellar rest frame without velocity shifts, enabling direct co-addition and template matching.
 
 ## Quick start (grad-student-proof)
 

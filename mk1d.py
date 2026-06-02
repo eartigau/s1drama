@@ -470,20 +470,45 @@ def process_one_file(
         blazethres=cut_blaze_norm,
     )
     
-    # Apply relativistic Doppler correction for BERV + systemic velocity
+    # Create zero-velocity flux by shifting the observed flux onto the common grid
     # Total velocity to correct (km/s): negative means blueshift
     total_vel_kms = berv_kms + rv_sys_kms
     beta = (total_vel_kms * 1000.0) / c  # c from scipy.constants in m/s
-    # Relativistic Doppler: λ_rest = λ_obs * sqrt((1 - β)/(1 + β))
+    # Relativistic Doppler factor
     doppler_factor = np.sqrt((1.0 - beta) / (1.0 + beta))
-    wavelength_zerovel = s1d["wavelength"] * doppler_factor
+    
+    # To shift flux to zero velocity: interpolate flux from shifted wavelengths
+    # flux_zerovel(λ) = flux(λ / doppler_factor)
+    wavelength_shifted = s1d["wavelength"] / doppler_factor
+    
+    # Interpolate flux and eflux onto the shifted wavelengths
+    valid = np.isfinite(s1d["flux"]) & np.isfinite(s1d["wavelength"])
+    if np.sum(valid) > 1:
+        flux_zerovel = np.interp(
+            wavelength_shifted,
+            s1d["wavelength"][valid],
+            s1d["flux"][valid],
+            left=np.nan,
+            right=np.nan,
+        )
+        eflux_zerovel = np.interp(
+            wavelength_shifted,
+            s1d["wavelength"][valid],
+            s1d["eflux"][valid],
+            left=np.nan,
+            right=np.nan,
+        )
+    else:
+        flux_zerovel = np.full_like(s1d["flux"], np.nan)
+        eflux_zerovel = np.full_like(s1d["eflux"], np.nan)
 
     print(f"[WRITE] Writing merged S1D FITS: {output_path}")
     cols = [
         fits.Column(name="wavelength", array=s1d["wavelength"], format="D", unit="nm"),
-        fits.Column(name="wavelength_zerovel", array=wavelength_zerovel, format="D", unit="nm"),
         fits.Column(name="flux", array=s1d["flux"], format="D"),
         fits.Column(name="eflux", array=s1d["eflux"], format="D"),
+        fits.Column(name="flux_zerovel", array=flux_zerovel, format="D"),
+        fits.Column(name="eflux_zerovel", array=eflux_zerovel, format="D"),
         fits.Column(name="weight", array=s1d["weight"], format="D"),
     ]
     s1d_hdu = fits.BinTableHDU.from_columns(cols, name="S1D")
