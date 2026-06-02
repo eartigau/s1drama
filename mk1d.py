@@ -443,7 +443,7 @@ def process_one_file(
     overlap_margin_nm: float,
 ) -> tuple[int, int]:
     """Run full 2D->1D merge pipeline for one file and return quality counts."""
-    print(f"[READ ] Opening input FITS: {input_path}")
+    print(f"\033[94m📖 Reading\033[0m {input_path}")
     with fits.open(input_path) as hdul:
         header0 = hdul[0].header
         header1 = hdul[1].header if len(hdul) > 1 else None
@@ -456,7 +456,7 @@ def process_one_file(
         # ESO TEL TARG RADVEL is the target's radial velocity (systemic)
         rv_sys_kms = header0.get('ESO TEL TARG RADVEL', 0.0)
 
-    print("[MERGE] Running APERO-like order merge...")
+    print("\033[96m⚙️  Merging\033[0m APERO-like order merge...")
     s1d = e2ds_to_s1d_apero_logic(
         wavemap=wavemap,
         e2ds=e2ds,
@@ -502,7 +502,7 @@ def process_one_file(
         flux_zerovel = np.full_like(s1d["flux"], np.nan)
         eflux_zerovel = np.full_like(s1d["eflux"], np.nan)
 
-    print(f"[WRITE] Writing merged S1D FITS: {output_path}")
+    print(f"\033[94m💾 Writing\033[0m {output_path}")
     cols = [
         fits.Column(name="wavelength", array=s1d["wavelength"], format="D", unit="nm"),
         fits.Column(name="flux", array=s1d["flux"], format="D"),
@@ -528,7 +528,7 @@ def process_one_file(
     fits.HDUList([primary, s1d_hdu]).writeto(output_path, overwrite=True)
 
     if make_plots:
-        print(f"[PLOT ] Writing diagnostics in: {fig_dir}")
+        print(f"\033[95m📊 Plotting\033[0m diagnostics → {fig_dir}")
         make_debug_plots(
             input_path=input_path,
             fig_dir=fig_dir,
@@ -543,7 +543,7 @@ def process_one_file(
 
     total_rows = len(s1d["wavelength"])
     finite_flux = int(np.isfinite(s1d["flux"]).sum())
-    print(f"[DONE ] Rows={total_rows} | finite_flux={finite_flux}/{total_rows}")
+    print(f"\033[92m✓ Done\033[0m {total_rows} rows | {finite_flux}/{total_rows} finite flux")
     return finite_flux, total_rows
 
 
@@ -641,7 +641,7 @@ def main() -> None:
     overlap_orders = [int(v) for v in plot_cfg.get("overlap_orders", [59, 60, 61])]
     overlap_margin_nm = float(plot_cfg.get("overlap_margin_nm", 0.5))
 
-    print("[INFO ] Resolving input paths/patterns...")
+    print("\033[96mℹ️  Info\033[0m Resolving input paths/patterns...")
     files = resolve_input_files(args.input_patterns)
     if len(files) == 0:
         raise FileNotFoundError(
@@ -652,20 +652,20 @@ def main() -> None:
     if args.output is not None and len(files) != 1:
         raise ValueError("--output can only be used when exactly one input file is resolved.")
 
-    print(f"[INFO ] Resolved {len(files)} file(s).")
-    print(f"[INFO ] Output directory: {output_dir}")
-    print(f"[INFO ] Skip existing outputs: {'NO (force mode)' if args.force else 'YES'}")
+    print(f"\033[96mℹ️  Info\033[0m Resolved {len(files)} file(s)")
+    print(f"\033[96mℹ️  Info\033[0m Output directory: {output_dir}")
+    print(f"\033[96mℹ️  Info\033[0m Skip existing: {'NO (force mode)' if args.force else 'YES'}")
 
     processed = 0
     skipped = 0
     failed = 0
     for idx, input_path in enumerate(files, start=1):
         print("\n" + "=" * 78)
-        print(f"[FILE ] {idx}/{len(files)}: {input_path}")
+        print(f"\033[94m📁 File\033[0m {idx}/{len(files)}: {input_path.name}")
 
         # Avoid recursively processing previously generated S1D products.
         if input_path.stem.endswith(output_suffix):
-            print(f"[SKIP ] Input appears to be an already merged output: {input_path.name}")
+            print(f"\033[93m⏭  Skip\033[0m Already merged output: {input_path.name}")
             skipped += 1
             continue
 
@@ -675,8 +675,8 @@ def main() -> None:
             output_path = build_output_path(input_path, output_dir, output_suffix)
 
         if output_path.exists() and not args.force:
-            print(f"[SKIP ] Output exists already: {output_path}")
-            print("[SKIP ] Use --force to overwrite this file.")
+            print(f"\033[93m⏭  Skip\033[0m Output exists: {output_path.name}")
+            print("\033[93m⏭  Skip\033[0m Use --force to overwrite")
             skipped += 1
             continue
 
@@ -700,19 +700,19 @@ def main() -> None:
                 overlap_orders=overlap_orders,
                 overlap_margin_nm=overlap_margin_nm,
             )
-            print(f"[OUT  ] {output_path}")
+            print(f"\033[92m✓ Success\033[0m → {output_path}")
             processed += 1
         except Exception as exc:
-            print(f"[FAIL ] Could not process file: {input_path}")
-            print(f"[FAIL ] Reason: {exc}")
+            print(f"\033[91m✗ Failed\033[0m {input_path.name}")
+            print(f"\033[91m✗ Error\033[0m {exc}")
             failed += 1
 
     print("\n" + "=" * 78)
-    print(f"[SUM  ] Total files resolved: {len(files)}")
-    print(f"[SUM  ] Processed: {processed}")
-    print(f"[SUM  ] Skipped (already exists): {skipped}")
-    print(f"[SUM  ] Failed: {failed}")
-    print("[SUM  ] Completed.")
+    print(f"\033[96m📊 Summary\033[0m Total files: {len(files)}")
+    print(f"\033[92m✓ Processed\033[0m {processed}")
+    print(f"\033[93m⏭  Skipped\033[0m {skipped}")
+    print(f"\033[91m✗ Failed\033[0m {failed}")
+    print("\033[92m✓ Completed\033[0m")
 
 
 if __name__ == "__main__":

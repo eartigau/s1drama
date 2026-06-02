@@ -75,7 +75,16 @@ If you already have the repo and want updates:
 git pull --ff-only
 ```
 
-### 2. Create a Python environment
+### 2. Install dependencies
+
+S1D-Rama requires standard scientific Python packages:
+- numpy >= 1.26
+- scipy >= 1.11
+- astropy >= 6.0
+- matplotlib >= 3.8
+- PyYAML >= 6.0
+
+If you already have these packages in your environment, skip to step 3. Otherwise, install them:
 
 Option A (venv):
 
@@ -92,6 +101,12 @@ Option B (conda):
 conda create -n s1drama python=3.12 -y
 conda activate s1drama
 python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+Option C (system-wide or existing environment):
+
+```bash
 python -m pip install -r requirements.txt
 ```
 
