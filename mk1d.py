@@ -446,9 +446,15 @@ def process_one_file(
     print(f"[READ ] Opening input FITS: {input_path}")
     with fits.open(input_path) as hdul:
         header0 = hdul[0].header
+        header1 = hdul[1].header if len(hdul) > 1 else None
         e2ds = np.array(hdul[flux_ext].data, dtype=float)
         wavemap = np.array(hdul[wave_ext].data, dtype=float)
         blaze = np.array(hdul[blaze_ext].data, dtype=float)
+        
+        # Read BERV and systemic velocity for zero-velocity wavelength correction
+        berv_kms = header1.get('BERV', 0.0) if header1 else 0.0
+        # ESO TEL TARG RADVEL is the target's radial velocity (systemic)
+        rv_sys_kms = header0.get('ESO TEL TARG RADVEL', 0.0)
 
     print("[MERGE] Running APERO-like order merge...")
     s1d = e2ds_to_s1d_apero_logic(
@@ -463,10 +469,19 @@ def process_one_file(
         smooth_size=edge_ssize,
         blazethres=cut_blaze_norm,
     )
+    
+    # Apply relativistic Doppler correction for BERV + systemic velocity
+    # Total velocity to correct (km/s): negative means blueshift
+    total_vel_kms = berv_kms + rv_sys_kms
+    beta = (total_vel_kms * 1000.0) / c  # c from scipy.constants in m/s
+    # Relativistic Doppler: λ_rest = λ_obs * sqrt((1 - β)/(1 + β))
+    doppler_factor = np.sqrt((1.0 - beta) / (1.0 + beta))
+    wavelength_zerovel = s1d["wavelength"] * doppler_factor
 
     print(f"[WRITE] Writing merged S1D FITS: {output_path}")
     cols = [
         fits.Column(name="wavelength", array=s1d["wavelength"], format="D", unit="nm"),
+        fits.Column(name="wavelength_zerovel", array=wavelength_zerovel, format="D", unit="nm"),
         fits.Column(name="flux", array=s1d["flux"], format="D"),
         fits.Column(name="eflux", array=s1d["eflux"], format="D"),
         fits.Column(name="weight", array=s1d["weight"], format="D"),
@@ -480,6 +495,9 @@ def process_one_file(
     s1d_hdu.header["S1DSSIZE"] = (edge_ssize, "S1D order-edge smoothing scale [pix]")
     s1d_hdu.header["S1DBLAZT"] = (cut_blaze_norm, "Normalized blaze threshold")
     s1d_hdu.header["APEROALG"] = ("e2ds_to_s1d", "APERO function logic used")
+    s1d_hdu.header["BERV"] = (berv_kms, "Barycentric Earth RV [km/s]")
+    s1d_hdu.header["RV_SYS"] = (rv_sys_kms, "Systemic RV [km/s]")
+    s1d_hdu.header["RV_TOTAL"] = (total_vel_kms, "BERV + systemic RV [km/s]")
 
     primary = fits.PrimaryHDU(header=header0)
     fits.HDUList([primary, s1d_hdu]).writeto(output_path, overwrite=True)

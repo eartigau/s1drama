@@ -32,7 +32,8 @@ Input:
 
 Output:
 - FITS binary table extension named S1D with columns:
-  - wavelength [nm]
+  - wavelength [nm] — observed-frame wavelength
+  - wavelength_zerovel [nm] — rest-frame wavelength (corrected for BERV + systemic velocity)
   - flux
   - eflux
   - weight
@@ -45,6 +46,17 @@ Algorithm outline (APERO-style):
 5. Combine overlapping orders using blaze as weight.
 6. Normalize by total weight in each bin.
 7. Write merged vectors to FITS.
+
+### Velocity correction
+
+S1D-Rama automatically reads the barycentric Earth radial velocity (BERV) and target systemic velocity from the FITS header and computes a rest-frame wavelength grid:
+
+- BERV is read from extension 1 header keyword `BERV` (km/s)
+- Systemic velocity is read from extension 0 header keyword `ESO TEL TARG RADVEL` (km/s)
+- The relativistic Doppler correction is applied: λ_rest = λ_obs × √[(1 - β)/(1 + β)] where β = v_total/c
+- Both `wavelength` (observed) and `wavelength_zerovel` (rest-frame) columns are written to the output
+
+This allows direct template matching and cross-correlation in the stellar rest frame without additional velocity shifts.
 
 ## Quick start (grad-student-proof)
 
@@ -84,13 +96,13 @@ python -m pip install -r requirements.txt
 ### 3. Run on your FITS file
 
 ```bash
-python make_s1d_from_e2ds_apero_logic.py --make-plots data/NIRPS.2023-08-29T01:33:35.188t.fits
+python mk1d.py --make-plots data/NIRPS.2023-08-29T01:33:35.188t.fits
 ```
 
 You can also process many files with wildcards:
 
 ```bash
-python make_s1d_from_e2ds_apero_logic.py "data/*.fits"
+python mk1d.py "data/*.fits"
 ```
 
 Tip: quoting the wildcard ensures Python receives the pattern directly.
@@ -103,7 +115,7 @@ Default behavior in batch mode:
 To force reprocessing (overwrite existing outputs):
 
 ```bash
-python make_s1d_from_e2ds_apero_logic.py --force "data/*.fits"
+python mk1d.py --force "data/*.fits"
 ```
 
 Expected products:
@@ -141,7 +153,7 @@ This file controls:
 You can provide another config file at runtime:
 
 ```bash
-python make_s1d_from_e2ds_apero_logic.py --config config/s1drama.yaml data/your_file.fits
+python mk1d.py --config config/s1drama.yaml data/your_file.fits
 ```
 
 CLI flags override YAML values.
@@ -177,7 +189,7 @@ It is intentionally a standalone implementation and does not run the full APERO 
 ## Command reference
 
 ```bash
-python make_s1d_from_e2ds_apero_logic.py --help
+python mk1d.py --help
 ```
 
 Useful options:
