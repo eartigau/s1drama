@@ -1,0 +1,27 @@
+project:
+  name: S1Drama
+  subtitle: APERO-style 2D-order to 1D-spectrum merger
+
+io:
+  flux_ext: FluxA
+  wave_ext: WaveA
+  blaze_ext: BlazeA
+  output_dir: products/s1d
+  output_suffix: _s1d_apero
+
+merge:
+  # APERO/NIRPS defaults from apero/instruments/nirps_ha/constants.py
+  # and apero/instruments/nirps_he/constants.py
+  wgrid: wave
+  wavestart_nm: 965.0
+  waveend_nm: 1950.0
+  bin_uwave_nm: 0.005
+  bin_uvel_kms: 0.5
+  edge_ssize_pix: 20
+  cut_blaze_norm: 0.2
+
+plotting:
+  fig_dir: docs/figures
+  slope_plot_order: 30
+  overlap_orders: [59, 60, 61]
+  overlap_margin_nm: 0.5
