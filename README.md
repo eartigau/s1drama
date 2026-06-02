@@ -2,15 +2,9 @@
 
 APERO-style conversion from 2D extracted echelle orders (s2d/e2ds-like FITS) to a merged 1D spectrum (s1d-like FITS table).
 
-Suggested repository name: S1Drama
-Alternative names:
-- OrderWeaver
-- EchelleMerge1D
-- SpectroMerger
-
 ## Why this exists
 
-Many analyses need a single 1D spectrum, but reduced echelle products are naturally 2D (order, pixel). This repository provides a transparent, script-level implementation of the APERO order-merging logic used to build 1D spectra.
+Many analyses need a single 1D spectrum, but reduced echelle products are naturally 2D (order, pixel). S1D-Rama provides a transparent, script-level implementation of the APERO order-merging logic used to build 1D spectra.
 
 The merging recipe follows APERO's approach where overlapping orders are combined using blaze-based weighting and edge tapering to avoid discontinuities.
 
@@ -31,9 +25,10 @@ APERO constants mirrored here (NIRPS defaults):
 ## What this script does
 
 Input:
-- 2D flux image per order
-- 2D wavelength map per order
-- 2D blaze function per order
+- An s2d FITS file (t.fits) from which S1D-Rama extracts:
+  - 2D flux image per order
+  - 2D wavelength map per order
+  - 2D blaze function per order
 
 Output:
 - FITS binary table extension named S1D with columns:
@@ -43,7 +38,7 @@ Output:
   - weight
 
 Algorithm outline (APERO-style):
-1. Build target 1D wavelength grid (uniform in wavelength or velocity).
+1. Build target 1D wavelength grid (uniform in velocity).
 2. Build edge taper weights per order so order ends fade in/out smoothly.
 3. Multiply flux/blaze by edge taper.
 4. Spline each order onto the target 1D grid.
@@ -56,8 +51,8 @@ Algorithm outline (APERO-style):
 ### 1. Clone and enter the repo
 
 ```bash
-git clone <YOUR_REPO_URL>
-cd s2d2s1d
+git clone https://github.com/eartigau/s1drama
+cd s1drama
 ```
 
 If you already have the repo and want updates:
@@ -175,9 +170,9 @@ explicit and demonstrating the seamless handoff in overlap regions.
 
 ## Notes on fidelity versus full APERO pipeline
 
-This repository reproduces the merge logic from APERO's e2ds_to_s1d function.
+S1D-Rama reproduces the merge logic from APERO's e2ds_to_s1d function.
 
-It is intentionally a standalone educational/reproducible implementation and does not run the full APERO reduction chain (calibrations, extraction, telluric recipes, database interactions, etc.).
+It is intentionally a standalone implementation and does not run the full APERO reduction chain (calibrations, extraction, telluric recipes, database interactions, etc.).
 
 ## Command reference
 
@@ -188,7 +183,6 @@ python make_s1d_from_e2ds_apero_logic.py --help
 Useful options:
 - --make-plots: generate documentation/debug figures
 - --fig-dir: choose where figures are written
-- --wgrid velocity: use APERO-like magic velocity grid
 - --output-dir: override YAML output directory
 - --force: overwrite already processed outputs
 - --output: custom single-file output path (single input only)
