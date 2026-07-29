@@ -102,6 +102,24 @@
       text-decoration: none;
     }
 
+    .home-link {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      margin-bottom: 0.4rem;
+    }
+    .home-link:hover {
+      color: var(--accent2);
+      border-color: rgba(98, 194, 255, 0.4);
+      text-decoration: none;
+    }
+
     /* ── Main ── */
     .main {
       max-width: 860px;
@@ -397,8 +415,8 @@
     <div class="sidebar-logo"><span>✦</span> S1D-Rama</div>
     <div class="sidebar-sub">Echelle order merging for spectroscopy</div>
 
-    <a class="nav-link" href="https://eartigau.github.io/">&larr; Home</a>
-    <a class="nav-link" href="https://github.com/eartigau/s1drama">GitHub</a>
+    <div><a class="home-link" href="https://eartigau.github.io/">&larr; Home</a></div>
+    <a class="nav-link" href="https://github.com/eartigau/s1drama">GitHub &nearr;</a>
 
     <span class="nav-label">Overview</span>
     <a class="nav-link" href="#why">Why this exists</a>
