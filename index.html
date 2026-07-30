@@ -36,18 +36,34 @@
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; color: var(--accent2); }
 
+    /* ── Topbar ── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      height: 49px;
+      padding: 0 20px;
+      background: rgba(13, 17, 23, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+
     /* ── Layout ── */
     .layout {
       display: grid;
       grid-template-columns: 240px 1fr;
-      min-height: 100vh;
+      min-height: calc(100vh - 49px);
     }
 
     /* ── Sidebar ── */
     .sidebar {
       position: sticky;
-      top: 0;
-      height: 100vh;
+      top: 49px;
+      height: calc(100vh - 49px);
       overflow-y: auto;
       background: var(--surface);
       border-right: 1px solid var(--border);
@@ -112,7 +128,6 @@
       border-radius: 999px;
       border: 1px solid var(--border);
       background: rgba(255, 255, 255, 0.04);
-      margin-bottom: 0.4rem;
     }
     .home-link:hover {
       color: var(--accent2);
@@ -408,15 +423,17 @@
 </head>
 <body>
 
+<div class="topbar">
+  <a href="https://github.com/eartigau/s1drama" class="home-link" target="_blank">GitHub</a>
+  <a href="https://eartigau.github.io/" class="home-link">&larr; Home</a>
+</div>
+
 <div class="layout">
 
   <!-- ── Sidebar ── -->
   <nav class="sidebar" aria-label="Page navigation">
     <div class="sidebar-logo"><span>✦</span> S1D-Rama</div>
     <div class="sidebar-sub">Echelle order merging for spectroscopy</div>
-
-    <div><a class="home-link" href="https://eartigau.github.io/">&larr; Home</a></div>
-    <a class="nav-link" href="https://github.com/eartigau/s1drama">GitHub &nearr;</a>
 
     <span class="nav-label">Overview</span>
     <a class="nav-link" href="#why">Why this exists</a>
