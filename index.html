@@ -7,6 +7,29 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      var stored = null;
+      try { stored = localStorage.getItem('s1drama_lang'); } catch (e) {}
+      var lang = stored || (navigator.language || 'en').toLowerCase();
+      var html = document.documentElement;
+      if (lang.indexOf('fr') === 0) { html.lang = 'fr'; html.classList.add('lang-fr'); }
+      else { html.lang = 'en'; html.classList.add('lang-en'); }
+    })();
+    function toggleLang() {
+      var html = document.documentElement;
+      var next = html.classList.contains('lang-fr') ? 'en' : 'fr';
+      html.classList.remove('lang-en', 'lang-fr');
+      html.classList.add('lang-' + next);
+      html.lang = next;
+      try { localStorage.setItem('s1drama_lang', next); } catch (e) {}
+      document.getElementById('langBtn').textContent = next === 'fr' ? 'EN' : 'FR';
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      document.getElementById('langBtn').textContent =
+        document.documentElement.classList.contains('lang-fr') ? 'EN' : 'FR';
+    });
+  </script>
   <style>
     :root {
       --bg: #08111f;
@@ -35,6 +58,10 @@
 
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; color: var(--accent2); }
+
+    html.lang-en .fr { display: none; }
+    html.lang-fr .en { display: none; }
+    #langBtn { cursor: pointer; font-family: inherit; }
 
     /* ── Topbar ── */
     .topbar {
@@ -425,7 +452,8 @@
 
 <div class="topbar">
   <a href="https://github.com/eartigau/s1drama" class="home-link" target="_blank">GitHub</a>
-  <a href="https://eartigau.github.io/" class="home-link">&larr; Home</a>
+  <a href="https://eartigau.github.io/#outils" class="home-link">&larr; <span class="en">Home</span><span class="fr">Accueil</span></a>
+  <button id="langBtn" class="home-link" onclick="toggleLang()">FR</button>
 </div>
 
 <div class="layout">
@@ -433,23 +461,26 @@
   <!-- ── Sidebar ── -->
   <nav class="sidebar" aria-label="Page navigation">
     <div class="sidebar-logo"><span>✦</span> S1D-Rama</div>
-    <div class="sidebar-sub">Echelle order merging for spectroscopy</div>
+    <div class="sidebar-sub">
+      <span class="en">Echelle order merging for spectroscopy</span>
+      <span class="fr">Fusion des ordres échelle pour la spectroscopie</span>
+    </div>
 
-    <span class="nav-label">Overview</span>
-    <a class="nav-link" href="#why">Why this exists</a>
-    <a class="nav-link" href="#what">What this does</a>
-    <a class="nav-link" href="#algorithm">Algorithm</a>
-    <a class="nav-link" href="#velocity">Velocity correction</a>
+    <span class="nav-label"><span class="en">Overview</span><span class="fr">Aperçu</span></span>
+    <a class="nav-link" href="#why"><span class="en">Why this exists</span><span class="fr">Pourquoi cet outil</span></a>
+    <a class="nav-link" href="#what"><span class="en">What this does</span><span class="fr">Ce que ça fait</span></a>
+    <a class="nav-link" href="#algorithm"><span class="en">Algorithm</span><span class="fr">Algorithme</span></a>
+    <a class="nav-link" href="#velocity"><span class="en">Velocity correction</span><span class="fr">Correction de vitesse</span></a>
 
-    <span class="nav-label">Usage</span>
-    <a class="nav-link" href="#quickstart">Quick start</a>
-    <a class="nav-link" href="#config">Configuration</a>
-    <a class="nav-link" href="#cli">CLI reference</a>
+    <span class="nav-label"><span class="en">Usage</span><span class="fr">Utilisation</span></span>
+    <a class="nav-link" href="#quickstart"><span class="en">Quick start</span><span class="fr">Démarrage rapide</span></a>
+    <a class="nav-link" href="#config"><span class="en">Configuration</span><span class="fr">Configuration</span></a>
+    <a class="nav-link" href="#cli"><span class="en">CLI reference</span><span class="fr">Référence CLI</span></a>
 
-    <span class="nav-label">Results</span>
-    <a class="nav-link" href="#figures">Figures</a>
-    <a class="nav-link" href="#fidelity">Fidelity notes</a>
-    <a class="nav-link" href="#refs">References</a>
+    <span class="nav-label"><span class="en">Results</span><span class="fr">Résultats</span></span>
+    <a class="nav-link" href="#figures"><span class="en">Figures</span><span class="fr">Figures</span></a>
+    <a class="nav-link" href="#fidelity"><span class="en">Fidelity notes</span><span class="fr">Notes de fidélité</span></a>
+    <a class="nav-link" href="#refs"><span class="en">References</span><span class="fr">Références</span></a>
   </nav>
 
   <!-- ── Main ── -->
@@ -459,8 +490,10 @@
     <div class="hero">
       <h1>S1D-Rama</h1>
       <p class="tagline">
-        APERO-style conversion from 2D extracted echelle orders (s2d / e2ds FITS)
-        to a merged 1D spectrum (s1d FITS table).
+        <span class="en">APERO-style conversion from 2D extracted echelle orders (s2d / e2ds FITS)
+        to a merged 1D spectrum (s1d FITS table).</span>
+        <span class="fr">Conversion à la APERO d'ordres échelle 2D extraits (FITS s2d / e2ds)
+        vers un spectre 1D fusionné (table FITS s1d).</span>
       </p>
       <div class="badge-row">
         <span class="badge badge-blue">Python 3.12+</span>
@@ -472,105 +505,121 @@
 
     <!-- Why -->
     <section id="why">
-      <h2>Why this exists</h2>
+      <h2><span class="en">Why this exists</span><span class="fr">Pourquoi cet outil existe</span></h2>
       <p>
-        Many analyses need a single 1D spectrum, but reduced echelle products are naturally 2D (order × pixel).
+        <span class="en">Many analyses need a single 1D spectrum, but reduced echelle products are naturally 2D (order × pixel).
         <strong>S1D-Rama</strong> provides a transparent, script-level implementation of the APERO order-merging
-        logic used to build 1D spectra.
+        logic used to build 1D spectra.</span>
+        <span class="fr">Bien des analyses ont besoin d'un spectre 1D unique, mais les produits échelle réduits sont naturellement en 2D (ordre × pixel).
+        <strong>S1D-Rama</strong> offre une implémentation transparente, au niveau du script, de la logique de fusion des ordres d'APERO
+        utilisée pour construire des spectres 1D.</span>
       </p>
       <div class="callout">
-        The merging recipe follows APERO's approach where overlapping orders are combined using
-        blaze-based weighting and edge tapering to avoid discontinuities.
+        <span class="en">The merging recipe follows APERO's approach where overlapping orders are combined using
+        blaze-based weighting and edge tapering to avoid discontinuities.</span>
+        <span class="fr">La recette de fusion suit l'approche d'APERO : les ordres qui se chevauchent sont combinés
+        à l'aide d'une pondération basée sur la fonction blaze et d'un lissage des bords, afin d'éviter les discontinuités.</span>
       </div>
     </section>
 
     <!-- What -->
     <section id="what">
-      <h2>What this does</h2>
+      <h2><span class="en">What this does</span><span class="fr">Ce que ça fait</span></h2>
 
-      <h3>Input</h3>
-      <p>An s2d FITS file (<code>*t.fits</code>) from which S1D-Rama extracts:</p>
+      <h3><span class="en">Input</span><span class="fr">Entrée</span></h3>
+      <p><span class="en">An s2d FITS file (<code>*t.fits</code>) from which S1D-Rama extracts:</span>
+      <span class="fr">Un fichier FITS s2d (<code>*t.fits</code>) dont S1D-Rama extrait :</span></p>
       <ul style="margin: 0.5rem 0 0.5rem 1.2rem; color: var(--muted); font-size:0.92rem; line-height:1.9;">
-        <li>2D flux image per order</li>
-        <li>2D wavelength map per order</li>
-        <li>2D blaze function per order</li>
+        <li><span class="en">2D flux image per order</span><span class="fr">Image de flux 2D par ordre</span></li>
+        <li><span class="en">2D wavelength map per order</span><span class="fr">Carte de longueur d'onde 2D par ordre</span></li>
+        <li><span class="en">2D blaze function per order</span><span class="fr">Fonction blaze 2D par ordre</span></li>
       </ul>
 
-      <h3>Output</h3>
-      <p>FITS binary table extension named <code>S1D</code> with the following columns:</p>
+      <h3><span class="en">Output</span><span class="fr">Sortie</span></h3>
+      <p><span class="en">FITS binary table extension named <code>S1D</code> with the following columns:</span>
+      <span class="fr">Extension de table binaire FITS nommée <code>S1D</code>, avec les colonnes suivantes :</span></p>
 
       <table>
         <thead>
-          <tr><th>Column</th><th>Unit</th><th>Description</th></tr>
+          <tr><th><span class="en">Column</span><span class="fr">Colonne</span></th><th><span class="en">Unit</span><span class="fr">Unité</span></th><th><span class="en">Description</span><span class="fr">Description</span></th></tr>
         </thead>
         <tbody>
-          <tr><td><code>wavelength</code></td><td>nm</td><td>Common observed-frame wavelength grid</td></tr>
-          <tr><td><code>flux</code></td><td>—</td><td>Native flux at observed wavelength</td></tr>
-          <tr><td><code>eflux</code></td><td>—</td><td>Flux uncertainty</td></tr>
-          <tr><td><code>flux_zerovel</code></td><td>—</td><td>Flux shifted to stellar rest frame (BERV + v<sub>sys</sub>)</td></tr>
-          <tr><td><code>eflux_zerovel</code></td><td>—</td><td>Flux uncertainty for zero-velocity flux</td></tr>
-          <tr><td><code>weight</code></td><td>—</td><td>Merge weight from blaze function</td></tr>
+          <tr><td><code>wavelength</code></td><td>nm</td><td><span class="en">Common observed-frame wavelength grid</span><span class="fr">Grille de longueur d'onde commune, référentiel observé</span></td></tr>
+          <tr><td><code>flux</code></td><td>—</td><td><span class="en">Native flux at observed wavelength</span><span class="fr">Flux natif à la longueur d'onde observée</span></td></tr>
+          <tr><td><code>eflux</code></td><td>—</td><td><span class="en">Flux uncertainty</span><span class="fr">Incertitude sur le flux</span></td></tr>
+          <tr><td><code>flux_zerovel</code></td><td>—</td><td><span class="en">Flux shifted to stellar rest frame (BERV + v<sub>sys</sub>)</span><span class="fr">Flux décalé dans le référentiel au repos de l'étoile (BERV + v<sub>sys</sub>)</span></td></tr>
+          <tr><td><code>eflux_zerovel</code></td><td>—</td><td><span class="en">Flux uncertainty for zero-velocity flux</span><span class="fr">Incertitude sur le flux à vitesse nulle</span></td></tr>
+          <tr><td><code>weight</code></td><td>—</td><td><span class="en">Merge weight from blaze function</span><span class="fr">Poids de fusion dérivé de la fonction blaze</span></td></tr>
         </tbody>
       </table>
     </section>
 
     <!-- Algorithm -->
     <section id="algorithm">
-      <h2>Algorithm</h2>
-      <p>APERO-style order merging in seven steps:</p>
+      <h2><span class="en">Algorithm</span><span class="fr">Algorithme</span></h2>
+      <p><span class="en">APERO-style order merging in seven steps:</span><span class="fr">Fusion des ordres à la APERO en sept étapes :</span></p>
       <ol class="steps">
-        <li>Build target 1D wavelength grid (uniform in velocity).</li>
-        <li>Build edge taper weights per order so order ends fade in/out smoothly.</li>
-        <li>Multiply flux and blaze by the edge taper.</li>
-        <li>Spline each order onto the target 1D grid.</li>
-        <li>Combine overlapping orders using the blaze as weight.</li>
-        <li>Normalize by total weight in each wavelength bin.</li>
-        <li>Write merged vectors to FITS.</li>
+        <li><span class="en">Build target 1D wavelength grid (uniform in velocity).</span><span class="fr">Construire la grille de longueur d'onde 1D cible (uniforme en vitesse).</span></li>
+        <li><span class="en">Build edge taper weights per order so order ends fade in/out smoothly.</span><span class="fr">Construire des poids de lissage de bord par ordre, pour que les extrémités s'estompent en douceur.</span></li>
+        <li><span class="en">Multiply flux and blaze by the edge taper.</span><span class="fr">Multiplier le flux et la fonction blaze par le lissage de bord.</span></li>
+        <li><span class="en">Spline each order onto the target 1D grid.</span><span class="fr">Interpoler (spline) chaque ordre sur la grille 1D cible.</span></li>
+        <li><span class="en">Combine overlapping orders using the blaze as weight.</span><span class="fr">Combiner les ordres qui se chevauchent en utilisant la fonction blaze comme poids.</span></li>
+        <li><span class="en">Normalize by total weight in each wavelength bin.</span><span class="fr">Normaliser par le poids total dans chaque intervalle de longueur d'onde.</span></li>
+        <li><span class="en">Write merged vectors to FITS.</span><span class="fr">Écrire les vecteurs fusionnés dans un fichier FITS.</span></li>
       </ol>
     </section>
 
     <!-- Velocity -->
     <section id="velocity">
-      <h2>Velocity correction</h2>
+      <h2><span class="en">Velocity correction</span><span class="fr">Correction de vitesse</span></h2>
       <p>
-        S1D-Rama automatically reads the barycentric Earth radial velocity (BERV) and target
+        <span class="en">S1D-Rama automatically reads the barycentric Earth radial velocity (BERV) and target
         systemic velocity from the FITS header and computes a rest-frame flux on the common
-        wavelength grid.
+        wavelength grid.</span>
+        <span class="fr">S1D-Rama lit automatiquement la vitesse radiale barycentrique terrestre (BERV) et la vitesse
+        systémique de la cible dans l'en-tête FITS, puis calcule un flux au repos sur la grille de
+        longueur d'onde commune.</span>
       </p>
       <table>
-        <thead><tr><th>Header keyword</th><th>Extension</th><th>Meaning</th></tr></thead>
+        <thead><tr><th><span class="en">Header keyword</span><span class="fr">Mot-clé d'en-tête</span></th><th><span class="en">Extension</span><span class="fr">Extension</span></th><th><span class="en">Meaning</span><span class="fr">Signification</span></th></tr></thead>
         <tbody>
-          <tr><td><code>BERV</code></td><td>ext 1</td><td>Barycentric Earth radial velocity (km/s)</td></tr>
-          <tr><td><code>ESO TEL TARG RADVEL</code></td><td>ext 0</td><td>Target systemic velocity (km/s)</td></tr>
+          <tr><td><code>BERV</code></td><td>ext 1</td><td><span class="en">Barycentric Earth radial velocity (km/s)</span><span class="fr">Vitesse radiale barycentrique terrestre (km/s)</span></td></tr>
+          <tr><td><code>ESO TEL TARG RADVEL</code></td><td>ext 0</td><td><span class="en">Target systemic velocity (km/s)</span><span class="fr">Vitesse systémique de la cible (km/s)</span></td></tr>
         </tbody>
       </table>
       <div class="callout">
-        Relativistic Doppler correction: β = v<sub>total</sub>/c,
+        <span class="en">Relativistic Doppler correction: β = v<sub>total</sub>/c,
         doppler_factor = √[(1 − β)/(1 + β)].
         The flux is then interpolated: <code>flux_zerovel(λ) = flux(λ / doppler_factor)</code>.
         Both the observed and rest-frame fluxes are written on the same wavelength grid, enabling
-        direct co-addition and template matching across epochs.
+        direct co-addition and template matching across epochs.</span>
+        <span class="fr">Correction Doppler relativiste : β = v<sub>total</sub>/c,
+        doppler_factor = √[(1 − β)/(1 + β)].
+        Le flux est ensuite interpolé : <code>flux_zerovel(λ) = flux(λ / doppler_factor)</code>.
+        Les flux observé et au repos sont tous deux écrits sur la même grille de longueur d'onde, ce qui permet
+        une co-addition directe et un appariement de gabarits (template matching) entre époques.</span>
       </div>
     </section>
 
     <!-- Quickstart -->
     <section id="quickstart">
-      <h2>Quick start</h2>
+      <h2><span class="en">Quick start</span><span class="fr">Démarrage rapide</span></h2>
 
-      <h3>1 · Clone and enter the repo</h3>
+      <h3><span class="en">1 · Clone and enter the repo</span><span class="fr">1 · Cloner le dépôt et s'y placer</span></h3>
       <pre><code>git clone https://github.com/eartigau/s1drama
 cd s1drama</code></pre>
-      <p style="font-size:0.88rem; color:var(--muted);">Already have the repo?</p>
+      <p style="font-size:0.88rem; color:var(--muted);"><span class="en">Already have the repo?</span><span class="fr">Vous avez déjà le dépôt ?</span></p>
       <pre><code>git pull --ff-only</code></pre>
 
-      <h3>2 · Install dependencies</h3>
-      <p>Requires: <code>numpy ≥ 1.26</code>, <code>scipy ≥ 1.11</code>, <code>astropy ≥ 6.0</code>, <code>matplotlib ≥ 3.8</code>, <code>PyYAML ≥ 6.0</code>.</p>
+      <h3><span class="en">2 · Install dependencies</span><span class="fr">2 · Installer les dépendances</span></h3>
+      <p><span class="en">Requires: <code>numpy ≥ 1.26</code>, <code>scipy ≥ 1.11</code>, <code>astropy ≥ 6.0</code>, <code>matplotlib ≥ 3.8</code>, <code>PyYAML ≥ 6.0</code>.</span>
+      <span class="fr">Requiert : <code>numpy ≥ 1.26</code>, <code>scipy ≥ 1.11</code>, <code>astropy ≥ 6.0</code>, <code>matplotlib ≥ 3.8</code>, <code>PyYAML ≥ 6.0</code>.</span></p>
 
       <div class="tabs" id="install-tabs">
         <div class="tab-buttons">
           <button class="tab-btn active" onclick="switchTab(event,'venv')">venv</button>
           <button class="tab-btn" onclick="switchTab(event,'conda')">conda</button>
-          <button class="tab-btn" onclick="switchTab(event,'system')">existing env</button>
+          <button class="tab-btn" onclick="switchTab(event,'system')"><span class="en">existing env</span><span class="fr">env existant</span></button>
         </div>
         <div id="tab-venv" class="tab-panel active">
           <pre><code>python3 -m venv .venv
@@ -589,21 +638,21 @@ python -m pip install -r requirements.txt</code></pre>
         </div>
       </div>
 
-      <h3>3 · Run on your FITS file</h3>
+      <h3><span class="en">3 · Run on your FITS file</span><span class="fr">3 · Traiter votre fichier FITS</span></h3>
       <pre><code>python mk1d.py --make-plots data/NIRPS.2023-08-29T01:33:35.188t.fits</code></pre>
-      <p style="font-size:0.88rem; color:var(--muted);">Process many files with a wildcard (quote to let Python expand it):</p>
+      <p style="font-size:0.88rem; color:var(--muted);"><span class="en">Process many files with a wildcard (quote to let Python expand it):</span><span class="fr">Traiter plusieurs fichiers avec un caractère générique (entre guillemets pour laisser Python l'étendre) :</span></p>
       <pre><code>python mk1d.py "data/*.fits"</code></pre>
-      <p style="font-size:0.88rem; color:var(--muted);">Force reprocessing of already-existing outputs:</p>
+      <p style="font-size:0.88rem; color:var(--muted);"><span class="en">Force reprocessing of already-existing outputs:</span><span class="fr">Forcer le retraitement des sorties déjà existantes :</span></p>
       <pre><code>python mk1d.py --force "data/*.fits"</code></pre>
 
-      <h3>Expected products</h3>
+      <h3><span class="en">Expected products</span><span class="fr">Produits attendus</span></h3>
       <pre><code>products/s1d/NIRPS.2023-08-29T01:33:35.188t_s1d_apero.fits
 docs/figures/NIRPS.2023-08-29T01:33:35.188t_fig1_e2ds.png
 docs/figures/NIRPS.2023-08-29T01:33:35.188t_fig2_edge_taper.png
 docs/figures/NIRPS.2023-08-29T01:33:35.188t_fig3_s1d.png
 docs/figures/NIRPS.2023-08-29T01:33:35.188t_fig4_overlap_zoom.png</code></pre>
 
-      <h3>4 · Inspect output quickly</h3>
+      <h3><span class="en">4 · Inspect output quickly</span><span class="fr">4 · Inspecter rapidement la sortie</span></h3>
       <pre><code>python - &lt;&lt;'PY'
 from astropy.io import fits
 p='products/s1d/NIRPS.2023-08-29T01:33:35.188t_s1d_apero.fits'
@@ -617,66 +666,71 @@ PY</code></pre>
 
     <!-- Config -->
     <section id="config">
-      <h2>Configuration</h2>
-      <p>All tunables live in <code>config/s1drama.yaml</code>. This file controls:</p>
+      <h2><span class="en">Configuration</span><span class="fr">Configuration</span></h2>
+      <p><span class="en">All tunables live in <code>config/s1drama.yaml</code>. This file controls:</span>
+      <span class="fr">Tous les paramètres ajustables se trouvent dans <code>config/s1drama.yaml</code>. Ce fichier contrôle :</span></p>
       <ul style="margin: 0.5rem 0 0.5rem 1.2rem; color:var(--muted); font-size:0.92rem; line-height:1.9;">
-        <li>FITS extension names (flux / wave / blaze)</li>
-        <li>Output directory and filename suffix</li>
-        <li>Merge constants (wavelength limits, binning, blaze threshold, edge smoothing)</li>
-        <li>Plot defaults</li>
+        <li><span class="en">FITS extension names (flux / wave / blaze)</span><span class="fr">Noms des extensions FITS (flux / wave / blaze)</span></li>
+        <li><span class="en">Output directory and filename suffix</span><span class="fr">Répertoire de sortie et suffixe de nom de fichier</span></li>
+        <li><span class="en">Merge constants (wavelength limits, binning, blaze threshold, edge smoothing)</span><span class="fr">Constantes de fusion (limites de longueur d'onde, binning, seuil blaze, lissage des bords)</span></li>
+        <li><span class="en">Plot defaults</span><span class="fr">Paramètres par défaut des graphiques</span></li>
       </ul>
-      <p>Supply an alternative config at runtime:</p>
+      <p><span class="en">Supply an alternative config at runtime:</span><span class="fr">Fournir une configuration alternative à l'exécution :</span></p>
       <pre><code>python mk1d.py --config config/s1drama.yaml data/your_file.fits</code></pre>
-      <div class="callout">CLI flags override YAML values.</div>
+      <div class="callout"><span class="en">CLI flags override YAML values.</span><span class="fr">Les options de la ligne de commande priment sur les valeurs du YAML.</span></div>
     </section>
 
     <!-- CLI -->
     <section id="cli">
-      <h2>CLI reference</h2>
+      <h2><span class="en">CLI reference</span><span class="fr">Référence CLI</span></h2>
       <pre><code>python mk1d.py --help</code></pre>
       <table class="cli-table">
-        <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+        <thead><tr><th><span class="en">Flag</span><span class="fr">Option</span></th><th><span class="en">Description</span><span class="fr">Description</span></th></tr></thead>
         <tbody>
-          <tr><td><code>--make-plots</code></td><td>Generate documentation/debug figures</td></tr>
-          <tr><td><code>--fig-dir</code></td><td>Choose where figures are written</td></tr>
-          <tr><td><code>--output-dir</code></td><td>Override YAML output directory</td></tr>
-          <tr><td><code>--force</code></td><td>Overwrite already-processed outputs</td></tr>
-          <tr><td><code>--output</code></td><td>Custom single-file output path (single input only)</td></tr>
-          <tr><td><code>--config</code></td><td>Path to alternative YAML config file</td></tr>
+          <tr><td><code>--make-plots</code></td><td><span class="en">Generate documentation/debug figures</span><span class="fr">Générer les figures de documentation/débogage</span></td></tr>
+          <tr><td><code>--fig-dir</code></td><td><span class="en">Choose where figures are written</span><span class="fr">Choisir où les figures sont écrites</span></td></tr>
+          <tr><td><code>--output-dir</code></td><td><span class="en">Override YAML output directory</span><span class="fr">Remplacer le répertoire de sortie du YAML</span></td></tr>
+          <tr><td><code>--force</code></td><td><span class="en">Overwrite already-processed outputs</span><span class="fr">Écraser les sorties déjà traitées</span></td></tr>
+          <tr><td><code>--output</code></td><td><span class="en">Custom single-file output path (single input only)</span><span class="fr">Chemin de sortie personnalisé pour un seul fichier (entrée unique seulement)</span></td></tr>
+          <tr><td><code>--config</code></td><td><span class="en">Path to alternative YAML config file</span><span class="fr">Chemin vers un fichier de configuration YAML alternatif</span></td></tr>
         </tbody>
       </table>
     </section>
 
     <!-- Figures -->
     <section id="figures">
-      <h2>Figures</h2>
+      <h2><span class="en">Figures</span><span class="fr">Figures</span></h2>
       <div class="fig-grid">
         <div class="fig-card">
           <img src="docs/figures/NIRPS.2023-04-08T09:04:33.856tellupatched_t_fig1_e2ds.png"
                alt="Input 2D echelle orders"
                onerror="this.style.display='none';this.nextElementSibling.style.borderTop='none';" />
-          <p class="fig-caption"><strong>Fig 1</strong> — Input 2D flux image per echelle order</p>
+          <p class="fig-caption"><strong>Fig 1</strong> — <span class="en">Input 2D flux image per echelle order</span><span class="fr">Image de flux 2D en entrée, par ordre échelle</span></p>
         </div>
         <div class="fig-card">
           <img src="docs/figures/NIRPS.2023-04-08T09:04:33.856tellupatched_t_fig2_edge_taper.png"
                alt="Edge taper weights"
                onerror="this.style.display='none';this.nextElementSibling.style.borderTop='none';" />
-          <p class="fig-caption"><strong>Fig 2</strong> — Example order-edge taper for smooth blending at order boundaries</p>
+          <p class="fig-caption"><strong>Fig 2</strong> — <span class="en">Example order-edge taper for smooth blending at order boundaries</span><span class="fr">Exemple de lissage de bord d'ordre pour un raccord doux aux frontières entre ordres</span></p>
         </div>
         <div class="fig-card fig-wide">
           <img src="docs/figures/NIRPS.2023-04-08T09:04:33.856tellupatched_t_fig3_s1d.png"
                alt="Final merged 1D spectrum"
                onerror="this.style.display='none';this.nextElementSibling.style.borderTop='none';" />
-          <p class="fig-caption"><strong>Fig 3</strong> — Final merged 1D spectrum and merge weight as a function of wavelength</p>
+          <p class="fig-caption"><strong>Fig 3</strong> — <span class="en">Final merged 1D spectrum and merge weight as a function of wavelength</span><span class="fr">Spectre 1D fusionné final et poids de fusion en fonction de la longueur d'onde</span></p>
         </div>
         <div class="fig-card fig-wide">
           <img src="docs/figures/NIRPS.2023-04-08T09:04:33.856tellupatched_t_fig4_overlap_zoom.png"
                alt="Overlap zoom on orders 59-61"
                onerror="this.style.display='none';this.nextElementSibling.style.borderTop='none';" />
           <p class="fig-caption">
-            <strong>Fig 4</strong> — Zoom on the overlap between orders 59–61. Color-coded order spectra are shown
+            <strong>Fig 4</strong> —
+            <span class="en">Zoom on the overlap between orders 59–61. Color-coded order spectra are shown
             together with the merged S1D. The lower panel shows each order's weight fraction, making the
-            transition at order boundaries explicit and demonstrating the seamless handoff in overlap regions.
+            transition at order boundaries explicit and demonstrating the seamless handoff in overlap regions.</span>
+            <span class="fr">Zoom sur le chevauchement entre les ordres 59–61. Les spectres des ordres, codés par couleur, sont montrés
+            avec le S1D fusionné. Le panneau du bas montre la fraction de poids de chaque ordre, rendant explicite la
+            transition aux frontières entre ordres et démontrant la continuité du raccord dans les zones de chevauchement.</span>
           </p>
         </div>
       </div>
@@ -684,33 +738,37 @@ PY</code></pre>
 
     <!-- Fidelity -->
     <section id="fidelity">
-      <h2>Fidelity vs. full APERO pipeline</h2>
+      <h2><span class="en">Fidelity vs. full APERO pipeline</span><span class="fr">Fidélité par rapport au pipeline APERO complet</span></h2>
       <p>
-        S1D-Rama reproduces the merge logic from APERO's <code>e2ds_to_s1d</code> function.
+        <span class="en">S1D-Rama reproduces the merge logic from APERO's <code>e2ds_to_s1d</code> function.
         It is intentionally a standalone implementation and does <em>not</em> run the full APERO
-        reduction chain (calibrations, extraction, telluric recipes, database interactions, etc.).
+        reduction chain (calibrations, extraction, telluric recipes, database interactions, etc.).</span>
+        <span class="fr">S1D-Rama reproduit la logique de fusion de la fonction <code>e2ds_to_s1d</code> d'APERO.
+        Il s'agit délibérément d'une implémentation autonome, qui n'exécute <em>pas</em> la chaîne de
+        réduction APERO complète (calibrations, extraction, recettes telluriques, interactions avec la base de données, etc.).</span>
       </p>
     </section>
 
     <!-- References -->
     <section id="refs">
-      <h2>References &amp; attribution</h2>
+      <h2><span class="en">References &amp; attribution</span><span class="fr">Références et attribution</span></h2>
       <p>
-        Please cite <strong>APERO (Cook et al. 2022)</strong> when this method is used in scientific work.
+        <span class="en">Please cite <strong>APERO (Cook et al. 2022)</strong> when this method is used in scientific work.</span>
+        <span class="fr">Veuillez citer <strong>APERO (Cook et al. 2022)</strong> lorsque cette méthode est utilisée dans un travail scientifique.</span>
       </p>
       <table>
-        <thead><tr><th>Item</th><th>Location</th></tr></thead>
+        <thead><tr><th><span class="en">Item</span><span class="fr">Élément</span></th><th><span class="en">Location</span><span class="fr">Emplacement</span></th></tr></thead>
         <tbody>
           <tr>
-            <td>Core paper</td>
+            <td><span class="en">Core paper</span><span class="fr">Article principal</span></td>
             <td>Cook et al. (2022), PASP — <a href="https://ui.adsabs.harvard.edu/abs/2022PASP..134k4509C/abstract" target="_blank">ADS link</a> (§ 7.6, Fig. 21)</td>
           </tr>
           <tr>
-            <td>APERO code</td>
+            <td><span class="en">APERO code</span><span class="fr">Code APERO</span></td>
             <td><code>apero/science/extract/gen_ext.py</code> → <code>e2ds_to_s1d</code></td>
           </tr>
           <tr>
-            <td>NIRPS constants</td>
+            <td><span class="en">NIRPS constants</span><span class="fr">Constantes NIRPS</span></td>
             <td><code>apero/instruments/nirps_ha/constants.py</code><br><code>apero/instruments/nirps_he/constants.py</code></td>
           </tr>
         </tbody>
@@ -718,7 +776,7 @@ PY</code></pre>
     </section>
 
     <footer>
-      <span>S1D-Rama · APERO-style echelle order merging</span>
+      <span><span class="en">S1D-Rama · APERO-style echelle order merging</span><span class="fr">S1D-Rama · Fusion d'ordres échelle à la APERO</span></span>
       <span>Cook et al. (2022), PASP · <a href="https://github.com/eartigau/s1drama">github.com/eartigau/s1drama</a></span>
     </footer>
 
